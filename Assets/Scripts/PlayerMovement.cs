@@ -45,5 +45,15 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = true;
         }
     }
+
+    void OnTriggerEnter(Collider other)
+{
+    if (other.CompareTag("Coin"))
+    {
+        ScoreManager.Instance.AddCoin(1);
+        Destroy(other.gameObject);
+    }
+}
+
 }
 
