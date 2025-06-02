@@ -5,12 +5,13 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float forwardSpeed = 5f;
-    public float laneDistance = 3f;
+    public float laneDistance = 3f; // Jarak antar jalur
     public float jumpForce = 5f;
+    public float sideSpeed = 10f;
 
     private int currentLane = 1;
-    private bool isGrounded = true;
     private Rigidbody rb;
+    private bool isGrounded = true;
 
     void Start()
     {
@@ -19,23 +20,36 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(Vector3.forward * forwardSpeed * Time.deltaTime);
-
+        // Input pindah jalur
         if (Input.GetKeyDown(KeyCode.LeftArrow) && currentLane > 0)
+        {
             currentLane--;
-
+        }
         if (Input.GetKeyDown(KeyCode.RightArrow) && currentLane < 2)
+        {
             currentLane++;
+        }
 
-        Vector3 targetPosition = transform.position;
-        targetPosition.x = (currentLane - 1) * laneDistance;
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 10);
-
+        // Input lompat
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
         }
+    }
+
+    void FixedUpdate()
+    {
+        // Gerakan maju
+        Vector3 velocity = rb.velocity;
+        velocity.z = forwardSpeed;
+        rb.velocity = velocity;
+
+        // Geser ke jalur target
+        float targetX = (currentLane - 1) * laneDistance;
+        float deltaX = targetX - transform.position.x;
+        Vector3 move = new Vector3(deltaX * sideSpeed, rb.velocity.y, forwardSpeed);
+        rb.velocity = new Vector3(move.x, rb.velocity.y, move.z);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -45,6 +59,4 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = true;
         }
     }
-
 }
-
