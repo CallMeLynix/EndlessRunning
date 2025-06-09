@@ -5,9 +5,12 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float forwardSpeed = 5f;
-    public float laneDistance = 3f; // Jarak antar jalur
-    public float jumpForce = 5f;
+    public float laneDistance = 3f;
     public float sideSpeed = 10f;
+
+    private float timeElapsed = 0f;
+    public float speedIncreaseInterval = 5f;
+    public float speedIncrement = 0.5f;
 
     private int currentLane = 1;
     private Rigidbody rb;
@@ -20,7 +23,13 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Input pindah jalur
+        timeElapsed += Time.deltaTime;
+        if (timeElapsed >= speedIncreaseInterval)
+        {
+            timeElapsed = 0f;
+            forwardSpeed += speedIncrement;
+        }
+
         if (Input.GetKeyDown(KeyCode.LeftArrow) && currentLane > 0)
         {
             currentLane--;
@@ -29,23 +38,14 @@ public class PlayerMovement : MonoBehaviour
         {
             currentLane++;
         }
-
-        // Input lompat
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false;
-        }
     }
 
     void FixedUpdate()
     {
-        // Gerakan maju
+
         Vector3 velocity = rb.velocity;
         velocity.z = forwardSpeed;
         rb.velocity = velocity;
-
-        // Geser ke jalur target
         float targetX = (currentLane - 1) * laneDistance;
         float deltaX = targetX - transform.position.x;
         Vector3 move = new Vector3(deltaX * sideSpeed, rb.velocity.y, forwardSpeed);
